@@ -117,6 +117,69 @@ def get_tools() -> list[Tool]:
                 "required": ["node", "vmid"],
             },
         ),
+        Tool(
+            name="pve_container_config_update",
+            description="Update container configuration (resources, network, mount points, etc.)",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "node": {"type": "string", "description": "Node name"},
+                    "vmid": {"type": "integer", "description": "Container ID"},
+                    "memory": {"type": "integer", "description": "Memory in MB"},
+                    "cores": {"type": "integer", "description": "CPU cores"},
+                    "hostname": {"type": "string", "description": "Container hostname"},
+                    "net0": {"type": "string", "description": "Network config (e.g., name=eth0,bridge=vmbr1,ip=dhcp)"},
+                    "rootfs": {"type": "string", "description": "Root filesystem config"},
+                    "nameserver": {"type": "string", "description": "DNS server"},
+                    "searchdomain": {"type": "string", "description": "DNS search domain"},
+                },
+                "required": ["node", "vmid"],
+            },
+        ),
+        Tool(
+            name="pve_container_clone",
+            description="Clone an existing container",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "node": {"type": "string", "description": "Node name"},
+                    "vmid": {"type": "integer", "description": "Source container ID"},
+                    "newid": {"type": "integer", "description": "New container ID"},
+                    "hostname": {"type": "string", "description": "New container hostname"},
+                    "full": {"type": "boolean", "description": "Full clone (true) or linked clone (false)"},
+                    "target": {"type": "string", "description": "Target node (optional)"},
+                },
+                "required": ["node", "vmid", "newid"],
+            },
+        ),
+        Tool(
+            name="pve_container_resize_disk",
+            description="Grow a container's mount point or rootfs. Can only grow, never shrink.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "node": {"type": "string", "description": "Node name"},
+                    "vmid": {"type": "integer", "description": "Container ID"},
+                    "disk": {"type": "string", "description": "Mount point to resize, e.g. 'rootfs', 'mp0'"},
+                    "size": {"type": "string", "description": "New size: relative '+10G' or absolute '32G'"},
+                },
+                "required": ["node", "vmid", "disk", "size"],
+            },
+        ),
+        Tool(
+            name="pve_container_migrate",
+            description="Migrate a container to another node in the cluster (background task)",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "node": {"type": "string", "description": "Source node name"},
+                    "vmid": {"type": "integer", "description": "Container ID"},
+                    "target": {"type": "string", "description": "Destination node name"},
+                    "restart": {"type": "boolean", "description": "Use restart mode (stop/migrate/start) for a running container", "default": False},
+                },
+                "required": ["node", "vmid", "target"],
+            },
+        ),
     ]
 
 
@@ -140,5 +203,21 @@ def handle_tool(name: str, arguments: dict[str, Any]) -> Any:
         return {"task": client.create_container(node, vmid, **arguments)}
     elif name == "pve_container_delete":
         return {"task": client.delete_container(arguments["node"], arguments["vmid"])}
+    elif name == "pve_container_config_update":
+        node = arguments.pop("node")
+        vmid = arguments.pop("vmid")
+        client.update_container_config(node, vmid, **arguments)
+        return {"status": "updated", "vmid": vmid}
+    elif name == "pve_container_clone":
+        node = arguments.pop("node")
+        vmid = arguments.pop("vmid")
+        newid = arguments.pop("newid")
+        return {"task": client.clone_container(node, vmid, newid, **arguments)}
+    elif name == "pve_container_resize_disk":
+        return {"task": client.resize_container_disk(arguments["node"], arguments["vmid"], arguments["disk"], arguments["size"])}
+    elif name == "pve_container_migrate":
+        return {"task": client.migrate_container(
+            arguments["node"], arguments["vmid"], arguments["target"], restart=arguments.get("restart", False)
+        )}
     else:
         raise ValueError(f"Unknown tool: {name}")

@@ -9,14 +9,31 @@ from mcp.server import Server
 from mcp.server.stdio import stdio_server
 from mcp.types import TextContent, Tool
 
-from .client import client
-from .tools import nodes, vms, containers, storage, network, backup
+from .tools import nodes, vms, containers, storage, network, backup, access, pools, cluster, firewall
 
 # Load environment variables
 load_dotenv()
 
 # Create MCP server
 server = Server("proxmox-mcp")
+
+# All tool-providing modules. Dispatch is built from each module's own
+# get_tools() output rather than name-prefix guessing, so there's a single
+# source of truth for which module owns which tool name.
+_MODULES = [nodes, vms, containers, storage, network, backup, access, pools, cluster, firewall]
+
+
+def _build_dispatch_table() -> dict[str, Any]:
+    table: dict[str, Any] = {}
+    for module in _MODULES:
+        for tool in module.get_tools():
+            if tool.name in table:
+                raise RuntimeError(f"Duplicate tool name registered: {tool.name}")
+            table[tool.name] = module
+    return table
+
+
+_DISPATCH = _build_dispatch_table()
 
 
 def format_result(data: Any) -> str:
@@ -28,12 +45,8 @@ def format_result(data: Any) -> str:
 async def list_tools() -> list[Tool]:
     """List all available Proxmox tools."""
     tools = []
-    tools.extend(nodes.get_tools())
-    tools.extend(vms.get_tools())
-    tools.extend(containers.get_tools())
-    tools.extend(storage.get_tools())
-    tools.extend(network.get_tools())
-    tools.extend(backup.get_tools())
+    for module in _MODULES:
+        tools.extend(module.get_tools())
     return tools
 
 
@@ -41,21 +54,11 @@ async def list_tools() -> list[Tool]:
 async def call_tool(name: str, arguments: dict[str, Any]) -> list[TextContent]:
     """Execute a Proxmox tool."""
     try:
-        # Route to appropriate handler
-        if name.startswith("pve_node"):
-            result = nodes.handle_tool(name, arguments)
-        elif name.startswith("pve_vm"):
-            result = vms.handle_tool(name, arguments)
-        elif name.startswith("pve_container"):
-            result = containers.handle_tool(name, arguments)
-        elif name.startswith("pve_storage"):
-            result = storage.handle_tool(name, arguments)
-        elif name.startswith("pve_network"):
-            result = network.handle_tool(name, arguments)
-        elif name.startswith("pve_backup") or name.startswith("pve_snapshot"):
-            result = backup.handle_tool(name, arguments)
-        else:
+        module = _DISPATCH.get(name)
+        if module is None:
             result = {"error": f"Unknown tool: {name}"}
+        else:
+            result = module.handle_tool(name, arguments)
 
         return [TextContent(type="text", text=format_result(result))]
 
