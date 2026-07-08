@@ -2,20 +2,37 @@
 
 import asyncio
 import json
+from importlib.metadata import PackageNotFoundError, version as _pkg_version
 from typing import Any
 
 from dotenv import load_dotenv
 from mcp.server import Server
 from mcp.server.stdio import stdio_server
-from mcp.types import TextContent, Tool
+from mcp.shared.exceptions import McpError
+from mcp.types import INVALID_PARAMS, ErrorData, TextContent, Tool
 
 from .tools import nodes, vms, containers, storage, network, backup, access, pools, cluster, firewall
 
 # Load environment variables
 load_dotenv()
 
+try:
+    _SERVER_VERSION = _pkg_version("proxmox-mcp")
+except PackageNotFoundError:
+    _SERVER_VERSION = "0.0.0-dev"
+
+_INSTRUCTIONS = (
+    "Manages a Proxmox VE cluster: nodes, VMs, containers, storage, networking, "
+    "backups/snapshots, access control, resource pools, HA/cluster, and firewall rules. "
+    "Long-running operations (clone, migrate, disk import, scheduled backups) return a "
+    "task UPID - poll pve_task_status until status='stopped' and exitstatus=='OK'; use "
+    "pve_task_log to see failure detail. Commands run via pve_vm_exec go through the "
+    "QEMU guest agent and do not support shell chaining (&&) - run one command at a time "
+    "and check pve_vm_exec_status for output."
+)
+
 # Create MCP server
-server = Server("proxmox-mcp")
+server = Server("proxmox-mcp", version=_SERVER_VERSION, instructions=_INSTRUCTIONS)
 
 # All tool-providing modules. Dispatch is built from each module's own
 # get_tools() output rather than name-prefix guessing, so there's a single
@@ -52,18 +69,20 @@ async def list_tools() -> list[Tool]:
 
 @server.call_tool()
 async def call_tool(name: str, arguments: dict[str, Any]) -> list[TextContent]:
-    """Execute a Proxmox tool."""
-    try:
-        module = _DISPATCH.get(name)
-        if module is None:
-            result = {"error": f"Unknown tool: {name}"}
-        else:
-            result = module.handle_tool(name, arguments)
+    """Execute a Proxmox tool.
 
-        return [TextContent(type="text", text=format_result(result))]
+    Unknown tool names are a protocol-level error (JSON-RPC INVALID_PARAMS).
+    Exceptions raised by a tool handler are left to propagate: the SDK's
+    call_tool decorator catches them and returns a CallToolResult with
+    isError=True, which is the spec-conformant way for clients to
+    distinguish a failed tool call from a successful one.
+    """
+    module = _DISPATCH.get(name)
+    if module is None:
+        raise McpError(ErrorData(code=INVALID_PARAMS, message=f"Unknown tool: {name}"))
 
-    except Exception as e:
-        return [TextContent(type="text", text=format_result({"error": str(e)}))]
+    result = module.handle_tool(name, arguments)
+    return [TextContent(type="text", text=format_result(result))]
 
 
 def main():

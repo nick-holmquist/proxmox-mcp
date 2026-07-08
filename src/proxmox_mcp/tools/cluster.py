@@ -4,6 +4,7 @@ from typing import Any
 
 from mcp.types import Tool
 
+from . import _annotations
 from ..client import client
 
 
@@ -12,11 +13,13 @@ def get_tools() -> list[Tool]:
     return [
         Tool(
             name="pve_cluster_status",
+            annotations=_annotations.READ_ONLY,
             description="Get cluster status: member nodes, quorum, and cluster membership info",
             inputSchema={"type": "object", "properties": {}, "required": []},
         ),
         Tool(
             name="pve_cluster_resources",
+            annotations=_annotations.READ_ONLY,
             description="Get a flat list of all cluster resources (VMs, containers, storage, nodes) in one call",
             inputSchema={
                 "type": "object",
@@ -32,11 +35,13 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_ha_group_list",
+            annotations=_annotations.READ_ONLY,
             description="List High Availability groups",
             inputSchema={"type": "object", "properties": {}, "required": []},
         ),
         Tool(
             name="pve_ha_group_create",
+            annotations=_annotations.WRITE,
             description="Create a High Availability group (a set of nodes a resource can run on, with priorities)",
             inputSchema={
                 "type": "object",
@@ -51,6 +56,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_ha_group_delete",
+            annotations=_annotations.DESTRUCTIVE,
             description="Delete a High Availability group",
             inputSchema={
                 "type": "object",
@@ -62,11 +68,13 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_ha_resource_list",
+            annotations=_annotations.READ_ONLY,
             description="List VMs/containers currently managed by High Availability",
             inputSchema={"type": "object", "properties": {}, "required": []},
         ),
         Tool(
             name="pve_ha_resource_create",
+            annotations=_annotations.WRITE,
             description="Add a VM or container to High Availability management",
             inputSchema={
                 "type": "object",
@@ -85,6 +93,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_ha_resource_update",
+            annotations=_annotations.IDEMPOTENT_WRITE,
             description="Update an HA-managed resource's group, state, or restart policy",
             inputSchema={
                 "type": "object",
@@ -102,6 +111,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_ha_resource_delete",
+            annotations=_annotations.DESTRUCTIVE,
             description="Remove a VM/container from High Availability management",
             inputSchema={
                 "type": "object",
@@ -113,11 +123,13 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_replication_list",
+            annotations=_annotations.READ_ONLY,
             description="List storage replication jobs",
             inputSchema={"type": "object", "properties": {}, "required": []},
         ),
         Tool(
             name="pve_replication_create",
+            annotations=_annotations.WRITE,
             description="Create a storage replication job to periodically replicate a VM/container's disks to another node",
             inputSchema={
                 "type": "object",
@@ -132,6 +144,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_replication_delete",
+            annotations=_annotations.DESTRUCTIVE,
             description="Delete a storage replication job",
             inputSchema={
                 "type": "object",
@@ -143,11 +156,13 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_backup_job_list",
+            annotations=_annotations.READ_ONLY,
             description="List scheduled backup jobs (vzdump schedules)",
             inputSchema={"type": "object", "properties": {}, "required": []},
         ),
         Tool(
             name="pve_backup_job_create",
+            annotations=_annotations.WRITE,
             description="Create a scheduled backup job",
             inputSchema={
                 "type": "object",
@@ -170,6 +185,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_backup_job_update",
+            annotations=_annotations.IDEMPOTENT_WRITE,
             description="Update a scheduled backup job",
             inputSchema={
                 "type": "object",
@@ -184,6 +200,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_backup_job_delete",
+            annotations=_annotations.DESTRUCTIVE,
             description="Delete a scheduled backup job",
             inputSchema={
                 "type": "object",

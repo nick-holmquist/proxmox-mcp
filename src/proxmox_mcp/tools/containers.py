@@ -4,6 +4,7 @@ from typing import Any
 
 from mcp.types import Tool
 
+from . import _annotations
 from ..client import client
 
 
@@ -12,6 +13,7 @@ def get_tools() -> list[Tool]:
     return [
         Tool(
             name="pve_container_list",
+            annotations=_annotations.READ_ONLY,
             description="List all LXC containers across all nodes",
             inputSchema={
                 "type": "object",
@@ -26,6 +28,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_container_status",
+            annotations=_annotations.READ_ONLY,
             description="Get detailed status for a specific container",
             inputSchema={
                 "type": "object",
@@ -38,6 +41,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_container_config",
+            annotations=_annotations.READ_ONLY,
             description="Get configuration for a specific container",
             inputSchema={
                 "type": "object",
@@ -50,6 +54,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_container_start",
+            annotations=_annotations.IDEMPOTENT_WRITE,
             description="Start a container",
             inputSchema={
                 "type": "object",
@@ -62,6 +67,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_container_stop",
+            annotations=_annotations.IDEMPOTENT_WRITE,
             description="Gracefully shutdown a container",
             inputSchema={
                 "type": "object",
@@ -74,6 +80,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_container_force_stop",
+            annotations=_annotations.IDEMPOTENT_WRITE,
             description="Force stop a container (immediate)",
             inputSchema={
                 "type": "object",
@@ -86,6 +93,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_container_create",
+            annotations=_annotations.WRITE,
             description="Create a new LXC container. WARNING: This creates a new container.",
             inputSchema={
                 "type": "object",
@@ -107,6 +115,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_container_delete",
+            annotations=_annotations.DESTRUCTIVE,
             description="Delete a container. WARNING: This permanently deletes the container!",
             inputSchema={
                 "type": "object",
@@ -119,6 +128,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_container_config_update",
+            annotations=_annotations.IDEMPOTENT_WRITE,
             description="Update container configuration (resources, network, mount points, etc.)",
             inputSchema={
                 "type": "object",
@@ -138,6 +148,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_container_clone",
+            annotations=_annotations.WRITE,
             description="Clone an existing container",
             inputSchema={
                 "type": "object",
@@ -154,6 +165,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_container_resize_disk",
+            annotations=_annotations.WRITE,
             description="Grow a container's mount point or rootfs. Can only grow, never shrink.",
             inputSchema={
                 "type": "object",
@@ -168,6 +180,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_container_migrate",
+            annotations=_annotations.WRITE,
             description="Migrate a container to another node in the cluster (background task)",
             inputSchema={
                 "type": "object",

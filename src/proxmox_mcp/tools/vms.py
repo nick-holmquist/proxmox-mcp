@@ -4,6 +4,7 @@ from typing import Any
 
 from mcp.types import Tool
 
+from . import _annotations
 from ..client import client
 
 
@@ -12,6 +13,7 @@ def get_tools() -> list[Tool]:
     return [
         Tool(
             name="pve_vm_list",
+            annotations=_annotations.READ_ONLY,
             description="List all virtual machines across all nodes",
             inputSchema={
                 "type": "object",
@@ -26,6 +28,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_vm_status",
+            annotations=_annotations.READ_ONLY,
             description="Get detailed status for a specific VM",
             inputSchema={
                 "type": "object",
@@ -38,6 +41,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_vm_config",
+            annotations=_annotations.READ_ONLY,
             description="Get configuration for a specific VM",
             inputSchema={
                 "type": "object",
@@ -50,6 +54,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_vm_start",
+            annotations=_annotations.IDEMPOTENT_WRITE,
             description="Start a virtual machine",
             inputSchema={
                 "type": "object",
@@ -62,6 +67,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_vm_stop",
+            annotations=_annotations.IDEMPOTENT_WRITE,
             description="Gracefully shutdown a virtual machine",
             inputSchema={
                 "type": "object",
@@ -74,6 +80,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_vm_force_stop",
+            annotations=_annotations.IDEMPOTENT_WRITE,
             description="Force stop a virtual machine (immediate power off)",
             inputSchema={
                 "type": "object",
@@ -86,6 +93,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_vm_restart",
+            annotations=_annotations.IDEMPOTENT_WRITE,
             description="Restart a virtual machine",
             inputSchema={
                 "type": "object",
@@ -98,6 +106,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_vm_create",
+            annotations=_annotations.WRITE,
             description="Create a new virtual machine. WARNING: This creates a new VM.",
             inputSchema={
                 "type": "object",
@@ -118,6 +127,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_vm_delete",
+            annotations=_annotations.DESTRUCTIVE,
             description="Delete a virtual machine. WARNING: This permanently deletes the VM!",
             inputSchema={
                 "type": "object",
@@ -130,6 +140,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_vm_clone",
+            annotations=_annotations.WRITE,
             description="Clone an existing virtual machine",
             inputSchema={
                 "type": "object",
@@ -146,6 +157,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_vm_config_update",
+            annotations=_annotations.IDEMPOTENT_WRITE,
             description="Update VM configuration including cloud-init settings",
             inputSchema={
                 "type": "object",
@@ -167,6 +179,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_vm_exec",
+            annotations=_annotations.OPEN_WORLD_WRITE,
             description="Execute a command on a VM via QEMU guest agent. Returns a PID to check status.",
             inputSchema={
                 "type": "object",
@@ -180,6 +193,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_vm_exec_status",
+            annotations=_annotations.READ_ONLY,
             description="Get the status and output of a command executed via guest agent",
             inputSchema={
                 "type": "object",
@@ -193,6 +207,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_vm_get_ip",
+            annotations=_annotations.READ_ONLY,
             description="Get IP addresses of a VM via QEMU guest agent",
             inputSchema={
                 "type": "object",
@@ -205,6 +220,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_vm_mount_iso",
+            annotations=_annotations.IDEMPOTENT_WRITE,
             description="Mount an ISO image to a VM's CD-ROM drive",
             inputSchema={
                 "type": "object",
@@ -225,6 +241,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_vm_unmount_iso",
+            annotations=_annotations.IDEMPOTENT_WRITE,
             description="Unmount/eject the ISO from a VM's CD-ROM drive",
             inputSchema={
                 "type": "object",
@@ -241,6 +258,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_vm_import_disk",
+            annotations=_annotations.WRITE,
             description=(
                 "Import an external disk image (qcow2/raw/vmdk) as a new disk on a VM. "
                 "The source must already be on the node, referenced as a storage volume "
@@ -275,6 +293,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_vm_resize_disk",
+            annotations=_annotations.WRITE,
             description="Grow a VM disk. Disks can only be grown, never shrunk.",
             inputSchema={
                 "type": "object",
@@ -292,6 +311,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_vm_move_disk",
+            annotations=_annotations.WRITE,
             description="Move a VM disk to a different storage (background task)",
             inputSchema={
                 "type": "object",
@@ -307,6 +327,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_vm_unlink_disk",
+            annotations=_annotations.DESTRUCTIVE,
             description="Detach one or more unused/orphaned disks from a VM's configuration",
             inputSchema={
                 "type": "object",
@@ -321,6 +342,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_vm_migrate",
+            annotations=_annotations.WRITE,
             description="Migrate a VM to another node in the cluster (background task)",
             inputSchema={
                 "type": "object",
@@ -336,6 +358,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_vm_convert_to_template",
+            annotations=_annotations.DESTRUCTIVE,
             description="Convert a VM into a template. WARNING: This is irreversible.",
             inputSchema={
                 "type": "object",
@@ -348,6 +371,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_vm_reset",
+            annotations=_annotations.WRITE,
             description="Hard reset a VM (equivalent to pressing the physical reset button)",
             inputSchema={
                 "type": "object",
@@ -360,6 +384,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_vm_vnc_ticket",
+            annotations=_annotations.WRITE,
             description="Create a short-lived VNC console ticket for a VM (for the noVNC web console)",
             inputSchema={
                 "type": "object",
@@ -372,6 +397,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_vm_spice_ticket",
+            annotations=_annotations.WRITE,
             description="Create a short-lived SPICE console ticket for a VM",
             inputSchema={
                 "type": "object",

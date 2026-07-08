@@ -4,6 +4,7 @@ from typing import Any
 
 from mcp.types import Tool
 
+from . import _annotations
 from ..client import client
 
 
@@ -12,11 +13,13 @@ def get_tools() -> list[Tool]:
     return [
         Tool(
             name="pve_pool_list",
+            annotations=_annotations.READ_ONLY,
             description="List all resource pools",
             inputSchema={"type": "object", "properties": {}, "required": []},
         ),
         Tool(
             name="pve_pool_get",
+            annotations=_annotations.READ_ONLY,
             description="Get a resource pool's members (VMs, containers, storage) and configuration",
             inputSchema={
                 "type": "object",
@@ -28,6 +31,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_pool_create",
+            annotations=_annotations.WRITE,
             description="Create a new resource pool, used to group VMs/containers/storage for organization or delegated access",
             inputSchema={
                 "type": "object",
@@ -40,6 +44,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_pool_update",
+            annotations=_annotations.IDEMPOTENT_WRITE,
             description="Update a resource pool's comment, or add/remove VM and storage members",
             inputSchema={
                 "type": "object",
@@ -55,6 +60,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_pool_delete",
+            annotations=_annotations.DESTRUCTIVE,
             description="Delete a resource pool",
             inputSchema={
                 "type": "object",

@@ -4,6 +4,7 @@ from typing import Any
 
 from mcp.types import Tool
 
+from . import _annotations
 from ..client import client
 
 _SCOPE_PROPS = {
@@ -23,6 +24,7 @@ def get_tools() -> list[Tool]:
     return [
         Tool(
             name="pve_firewall_rule_list",
+            annotations=_annotations.READ_ONLY,
             description=(
                 "List firewall rules at cluster, node, or VM/container scope. "
                 "Omit node+vmid for cluster-wide rules, give node only for node rules, "
@@ -32,6 +34,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_firewall_rule_create",
+            annotations=_annotations.WRITE,
             description="Create a firewall rule at cluster, node, or VM/container scope. WARNING: Can block network access if misconfigured.",
             inputSchema={
                 "type": "object",
@@ -51,6 +54,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_firewall_rule_update",
+            annotations=_annotations.IDEMPOTENT_WRITE,
             description="Update a firewall rule by its position index",
             inputSchema={
                 "type": "object",
@@ -69,6 +73,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_firewall_rule_delete",
+            annotations=_annotations.DESTRUCTIVE,
             description="Delete a firewall rule by its position index",
             inputSchema={
                 "type": "object",
@@ -81,11 +86,13 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_firewall_options_get",
+            annotations=_annotations.READ_ONLY,
             description="Get firewall options (enabled state, default input/output policy) at cluster, node, or VM/container scope",
             inputSchema={"type": "object", "properties": dict(_SCOPE_PROPS), "required": []},
         ),
         Tool(
             name="pve_firewall_options_update",
+            annotations=_annotations.IDEMPOTENT_WRITE,
             description="Update firewall options at cluster, node, or VM/container scope. WARNING: Can block network access if misconfigured.",
             inputSchema={
                 "type": "object",

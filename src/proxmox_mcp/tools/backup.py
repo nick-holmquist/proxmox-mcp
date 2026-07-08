@@ -4,6 +4,7 @@ from typing import Any
 
 from mcp.types import Tool
 
+from . import _annotations
 from ..client import client
 
 
@@ -13,6 +14,7 @@ def get_tools() -> list[Tool]:
         # Backup tools
         Tool(
             name="pve_backup_list",
+            annotations=_annotations.READ_ONLY,
             description="List backups in a storage pool",
             inputSchema={
                 "type": "object",
@@ -25,6 +27,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_backup_create",
+            annotations=_annotations.WRITE,
             description="Create a backup of a VM or container",
             inputSchema={
                 "type": "object",
@@ -49,6 +52,7 @@ def get_tools() -> list[Tool]:
         # Snapshot tools
         Tool(
             name="pve_snapshot_list",
+            annotations=_annotations.READ_ONLY,
             description="List snapshots for a VM or container",
             inputSchema={
                 "type": "object",
@@ -67,6 +71,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_snapshot_create",
+            annotations=_annotations.WRITE,
             description="Create a snapshot of a VM or container",
             inputSchema={
                 "type": "object",
@@ -91,6 +96,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_snapshot_rollback",
+            annotations=_annotations.DESTRUCTIVE,
             description="Rollback to a snapshot. WARNING: This reverts the VM/container to the snapshot state!",
             inputSchema={
                 "type": "object",
@@ -110,6 +116,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_snapshot_delete",
+            annotations=_annotations.DESTRUCTIVE,
             description="Delete a snapshot",
             inputSchema={
                 "type": "object",

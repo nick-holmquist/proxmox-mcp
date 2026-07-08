@@ -4,6 +4,7 @@ from typing import Any
 
 from mcp.types import Tool
 
+from . import _annotations
 from ..client import client
 
 
@@ -12,6 +13,7 @@ def get_tools() -> list[Tool]:
     return [
         Tool(
             name="pve_network_list",
+            annotations=_annotations.READ_ONLY,
             description="List network interfaces and bridges on a node",
             inputSchema={
                 "type": "object",
@@ -23,6 +25,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_network_vm",
+            annotations=_annotations.READ_ONLY,
             description="Get network configuration for a specific VM",
             inputSchema={
                 "type": "object",
@@ -35,6 +38,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_network_create",
+            annotations=_annotations.WRITE,
             description=(
                 "Create a network interface (bridge, VLAN, bond) on a node. "
                 "Changes are staged - call pve_network_apply to activate them."
@@ -60,6 +64,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_network_update",
+            annotations=_annotations.IDEMPOTENT_WRITE,
             description="Update a network interface's configuration. Staged - call pve_network_apply to activate.",
             inputSchema={
                 "type": "object",
@@ -77,6 +82,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_network_delete",
+            annotations=_annotations.DESTRUCTIVE,
             description="Delete a network interface. Staged - call pve_network_apply to activate.",
             inputSchema={
                 "type": "object",
@@ -89,6 +95,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_network_apply",
+            annotations=_annotations.IDEMPOTENT_WRITE,
             description="Apply pending network changes on a node (reloads networking - can briefly interrupt connectivity)",
             inputSchema={
                 "type": "object",

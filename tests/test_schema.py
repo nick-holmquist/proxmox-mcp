@@ -64,6 +64,18 @@ def test_every_property_has_type_or_enum():
             )
 
 
+def test_every_tool_has_annotations():
+    # The SDK's own defaults for an absent ToolAnnotations are conservative
+    # (destructiveHint/openWorldHint both default True), so an unannotated
+    # tool is presumed destructive by clients that honor the hints - every
+    # tool must set annotations explicitly.
+    for _module, tool in all_tools():
+        assert tool.annotations is not None, f"{tool.name} is missing annotations"
+        a = tool.annotations
+        for field in ("readOnlyHint", "destructiveHint", "idempotentHint", "openWorldHint"):
+            assert getattr(a, field) is not None, f"{tool.name}: annotations.{field} must be set explicitly"
+
+
 def test_server_dispatch_table_matches_tool_registry():
     # Import here (not at module scope) so a broken server.py surfaces as a
     # clear test failure rather than a collection-time import error.

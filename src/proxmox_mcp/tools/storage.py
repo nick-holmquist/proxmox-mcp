@@ -4,6 +4,7 @@ from typing import Any
 
 from mcp.types import Tool
 
+from . import _annotations
 from ..client import client
 
 
@@ -12,6 +13,7 @@ def get_tools() -> list[Tool]:
     return [
         Tool(
             name="pve_storage_list",
+            annotations=_annotations.READ_ONLY,
             description="List all storage pools in the cluster",
             inputSchema={
                 "type": "object",
@@ -26,6 +28,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_storage_content",
+            annotations=_annotations.READ_ONLY,
             description="List contents of a storage pool (ISOs, templates, backups, disk images)",
             inputSchema={
                 "type": "object",
@@ -43,6 +46,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_storage_config",
+            annotations=_annotations.READ_ONLY,
             description="Get the cluster-wide configuration for a storage pool, including enabled content types",
             inputSchema={
                 "type": "object",
@@ -54,6 +58,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_storage_create",
+            annotations=_annotations.WRITE,
             description="Register a new storage pool at the cluster level (e.g. dir, nfs, cifs, lvm, zfspool)",
             inputSchema={
                 "type": "object",
@@ -76,6 +81,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_storage_update",
+            annotations=_annotations.IDEMPOTENT_WRITE,
             description="Update an existing storage pool's configuration",
             inputSchema={
                 "type": "object",
@@ -90,6 +96,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_storage_delete",
+            annotations=_annotations.DESTRUCTIVE,
             description="Remove a storage pool's registration from the cluster. Does not delete the underlying data.",
             inputSchema={
                 "type": "object",
@@ -101,6 +108,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_storage_enable_import",
+            annotations=_annotations.IDEMPOTENT_WRITE,
             description=(
                 "Enable the 'import' content type on a storage so external disk images "
                 "(qcow2/raw/vmdk/ova) can be uploaded or downloaded onto it for VM disk "
@@ -116,6 +124,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_storage_download_url",
+            annotations=_annotations.WRITE,
             description=(
                 "Have the Proxmox node download a file directly from a URL into storage "
                 "(server-side fetch - no bytes pass through this MCP connection). This is "
@@ -153,6 +162,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_storage_upload",
+            annotations=_annotations.WRITE,
             description=(
                 "Upload a local file from the MCP host's filesystem to node storage. "
                 "The whole file streams through this connection - only practical for "

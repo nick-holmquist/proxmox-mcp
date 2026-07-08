@@ -4,6 +4,7 @@ from typing import Any
 
 from mcp.types import Tool
 
+from . import _annotations
 from ..client import client
 
 
@@ -12,6 +13,7 @@ def get_tools() -> list[Tool]:
     return [
         Tool(
             name="pve_node_list",
+            annotations=_annotations.READ_ONLY,
             description="List all nodes in the Proxmox cluster with their status",
             inputSchema={
                 "type": "object",
@@ -21,6 +23,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_node_status",
+            annotations=_annotations.READ_ONLY,
             description="Get detailed status for a specific node (CPU, memory, uptime)",
             inputSchema={
                 "type": "object",
@@ -35,6 +38,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_task_status",
+            annotations=_annotations.READ_ONLY,
             description=(
                 "Get the status of a background task by its UPID (returned by long-running "
                 "operations like disk import, backup, or clone). Check 'status' for "
@@ -51,6 +55,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_task_log",
+            annotations=_annotations.READ_ONLY,
             description="Get the log output of a background task by its UPID (useful for diagnosing a failed disk import)",
             inputSchema={
                 "type": "object",
@@ -63,6 +68,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_node_disk_list",
+            annotations=_annotations.READ_ONLY,
             description="List physical disks attached to a node",
             inputSchema={
                 "type": "object",
@@ -74,6 +80,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_node_disk_smart",
+            annotations=_annotations.READ_ONLY,
             description="Get SMART health data for a physical disk",
             inputSchema={
                 "type": "object",
@@ -86,6 +93,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_node_service_list",
+            annotations=_annotations.READ_ONLY,
             description="List system services on a node (pveproxy, pvedaemon, pvestatd, etc.)",
             inputSchema={
                 "type": "object",
@@ -97,6 +105,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_node_service_state",
+            annotations=_annotations.READ_ONLY,
             description="Get a system service's current state",
             inputSchema={
                 "type": "object",
@@ -109,6 +118,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_node_service_control",
+            annotations=_annotations.WRITE,
             description="Start, stop, or restart a system service on a node. WARNING: Stopping/restarting core services (pveproxy, pvedaemon) can disrupt cluster management.",
             inputSchema={
                 "type": "object",
@@ -122,6 +132,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_node_apt_list_updates",
+            annotations=_annotations.READ_ONLY,
             description="List available package updates on a node (from the last refreshed index)",
             inputSchema={
                 "type": "object",
@@ -133,6 +144,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_node_apt_refresh",
+            annotations=_annotations.IDEMPOTENT_WRITE,
             description="Refresh a node's package index (equivalent to 'apt-get update'). Does not install anything.",
             inputSchema={
                 "type": "object",
@@ -144,6 +156,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_node_certificates",
+            annotations=_annotations.READ_ONLY,
             description="List TLS certificates configured on a node",
             inputSchema={
                 "type": "object",
@@ -155,6 +168,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_node_journal",
+            annotations=_annotations.READ_ONLY,
             description="Get syslog/journal entries from a node",
             inputSchema={
                 "type": "object",

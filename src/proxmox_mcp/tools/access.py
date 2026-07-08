@@ -4,6 +4,7 @@ from typing import Any
 
 from mcp.types import Tool
 
+from . import _annotations
 from ..client import client
 
 
@@ -12,11 +13,13 @@ def get_tools() -> list[Tool]:
     return [
         Tool(
             name="pve_access_user_list",
+            annotations=_annotations.READ_ONLY,
             description="List all users",
             inputSchema={"type": "object", "properties": {}, "required": []},
         ),
         Tool(
             name="pve_access_user_get",
+            annotations=_annotations.READ_ONLY,
             description="Get a user's configuration",
             inputSchema={
                 "type": "object",
@@ -28,6 +31,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_access_user_create",
+            annotations=_annotations.WRITE,
             description="Create a new user. WARNING: Grants access to the Proxmox cluster.",
             inputSchema={
                 "type": "object",
@@ -46,6 +50,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_access_user_update",
+            annotations=_annotations.IDEMPOTENT_WRITE,
             description="Update a user's configuration",
             inputSchema={
                 "type": "object",
@@ -61,6 +66,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_access_user_delete",
+            annotations=_annotations.DESTRUCTIVE,
             description="Delete a user. WARNING: Revokes all access for this account.",
             inputSchema={
                 "type": "object",
@@ -72,11 +78,13 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_access_group_list",
+            annotations=_annotations.READ_ONLY,
             description="List all groups",
             inputSchema={"type": "object", "properties": {}, "required": []},
         ),
         Tool(
             name="pve_access_group_create",
+            annotations=_annotations.WRITE,
             description="Create a new group",
             inputSchema={
                 "type": "object",
@@ -89,6 +97,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_access_group_delete",
+            annotations=_annotations.DESTRUCTIVE,
             description="Delete a group",
             inputSchema={
                 "type": "object",
@@ -100,11 +109,13 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_access_role_list",
+            annotations=_annotations.READ_ONLY,
             description="List all roles (built-in and custom) with their privileges",
             inputSchema={"type": "object", "properties": {}, "required": []},
         ),
         Tool(
             name="pve_access_role_create",
+            annotations=_annotations.WRITE,
             description="Create a custom role with a specific set of privileges",
             inputSchema={
                 "type": "object",
@@ -117,6 +128,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_access_role_delete",
+            annotations=_annotations.DESTRUCTIVE,
             description="Delete a custom role",
             inputSchema={
                 "type": "object",
@@ -128,11 +140,13 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_access_acl_list",
+            annotations=_annotations.READ_ONLY,
             description="List all ACL entries (which users/groups have which roles on which paths)",
             inputSchema={"type": "object", "properties": {}, "required": []},
         ),
         Tool(
             name="pve_access_acl_update",
+            annotations=_annotations.IDEMPOTENT_WRITE,
             description=(
                 "Grant (or revoke, with delete=true) roles to users/groups on a resource path, "
                 "e.g. path='/vms/100' or path='/storage/local'. WARNING: Changes access permissions."
@@ -152,6 +166,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_access_token_list",
+            annotations=_annotations.READ_ONLY,
             description="List API tokens belonging to a user",
             inputSchema={
                 "type": "object",
@@ -163,6 +178,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_access_token_create",
+            annotations=_annotations.WRITE,
             description=(
                 "Create a new API token for a user. WARNING: The returned secret is shown "
                 "only once and cannot be retrieved again."
@@ -184,6 +200,7 @@ def get_tools() -> list[Tool]:
         ),
         Tool(
             name="pve_access_token_delete",
+            annotations=_annotations.DESTRUCTIVE,
             description="Delete an API token",
             inputSchema={
                 "type": "object",

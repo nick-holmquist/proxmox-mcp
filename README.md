@@ -87,6 +87,20 @@ Alternatively, add to your Claude MCP config:
 }
 ```
 
+## MCP Conformance
+
+The server declares its real `version` and `instructions` during the
+initialize handshake (not the SDK's own version), and every one of the 114
+tools sets explicit [tool annotations](https://modelcontextprotocol.io/specification/2025-06-18/server/tools)
+(`readOnlyHint`/`destructiveHint`/`idempotentHint`/`openWorldHint`) - the
+SDK's own defaults for an unset annotation are conservative (destructive and
+open-world both default `true`), so clients like Claude Code would otherwise
+treat every read-only `pve_*_list`/`pve_*_status` tool as if it were
+destructive. Tool-handler exceptions are left to propagate rather than being
+caught and returned as a "successful" `{"error": ...}` result, so the SDK can
+turn them into a spec-conformant `CallToolResult(isError=True)`; unknown tool
+names raise a protocol-level `McpError` (`INVALID_PARAMS`) instead.
+
 ## Available Tools
 
 114 tools across 10 modules, covering the day-to-day Proxmox VE API surface.
