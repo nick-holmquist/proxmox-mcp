@@ -412,6 +412,30 @@ class ProxmoxClient:
             kwargs["checksum-algorithm"] = checksum_algorithm or "sha256"
         return self.api.nodes(node).storage(storage)("download-url").post(**kwargs)
 
+    def _resolve_upload_path(self, file_path: str) -> str:
+        """Resolve file_path and confine it to the PROXMOX_MCP_UPLOAD_DIR
+        allowlisted directory. Fails closed: if that env var isn't set,
+        local-file upload is disabled entirely rather than defaulting to
+        something permissive (e.g. the whole host filesystem). This exists
+        because file_path is caller-controlled - without confinement, an MCP
+        tool caller could read arbitrary files the server process can access
+        (SSH keys, this server's own .env, etc.) and exfiltrate them into
+        Proxmox storage."""
+        upload_dir = os.environ.get("PROXMOX_MCP_UPLOAD_DIR")
+        if not upload_dir:
+            raise PermissionError(
+                "Local file upload is disabled: set PROXMOX_MCP_UPLOAD_DIR to an "
+                "allowlisted directory to enable pve_storage_upload, or use "
+                "pve_storage_download_url instead."
+            )
+        base = os.path.realpath(upload_dir)
+        resolved = os.path.realpath(os.path.join(base, file_path) if not os.path.isabs(file_path) else file_path)
+        if os.path.commonpath([base, resolved]) != base:
+            raise PermissionError(
+                f"file_path must be inside the allowlisted upload directory ({base})"
+            )
+        return resolved
+
     def upload_to_storage(
         self,
         node: str,
@@ -426,14 +450,18 @@ class ProxmoxClient:
         to the source (e.g. a mounted volume) - the whole file streams through
         this connection before the node moves it into place. For anything
         multi-gigabyte or remote, prefer download_url_to_storage instead.
-        Returns a task UPID to poll for completion."""
-        if not os.path.isfile(file_path):
+
+        file_path must resolve inside PROXMOX_MCP_UPLOAD_DIR (see
+        _resolve_upload_path) - this tool is disabled unless that directory
+        is configured. Returns a task UPID to poll for completion."""
+        resolved_path = self._resolve_upload_path(file_path)
+        if not os.path.isfile(resolved_path):
             raise FileNotFoundError(f"No such file: {file_path}")
         kwargs: dict[str, Any] = {"content": content}
         if checksum:
             kwargs["checksum"] = checksum
             kwargs["checksum-algorithm"] = checksum_algorithm or "sha256"
-        with open(file_path, "rb") as fh:
+        with open(resolved_path, "rb") as fh:
             return self.api.nodes(node).storage(storage).upload.post(
                 filename=fh, **kwargs
             )

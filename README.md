@@ -187,6 +187,10 @@ This returns a task UPID immediately; the download continues in the
 background. Only use `pve_storage_upload` for small files or when a volume is
 mounted directly into the MCP container (the Docker MCP Gateway does not
 support volume mounts for custom servers — see project CLAUDE.md).
+`pve_storage_upload` is disabled by default: since its `file_path` argument
+is caller-controlled, it's confined to a directory you explicitly allowlist
+via `PROXMOX_MCP_UPLOAD_DIR` (see `.env.example`) rather than being able to
+read anywhere on the host.
 
 Poll the task until it completes:
 
@@ -373,6 +377,15 @@ deliberate about who can reach them.
 logs, no rate limiting, and no confirmation prompts before destructive calls
 (delete/force-stop/firewall changes) - the calling client is responsible for
 confirming intent before invoking a destructive tool.
+
+**Host filesystem access:** Every other tool operates only on the Proxmox
+cluster via its API - the one exception is `pve_storage_upload`, whose
+`file_path` argument names a file on the machine running this MCP server.
+That's a capability beyond "do what the Proxmox token permits," so it fails
+closed: it's disabled until you set `PROXMOX_MCP_UPLOAD_DIR`, and `file_path`
+is confined to that directory (path traversal outside it is rejected). Only
+point that variable at a directory you're comfortable exposing to whatever
+can call this MCP's tools.
 
 ## License
 

@@ -168,14 +168,19 @@ def get_tools() -> list[Tool]:
                 "The whole file streams through this connection - only practical for "
                 "small files or when a volume is mounted into the MCP container. For "
                 "large qcow2 images, host them at a URL and use pve_storage_download_url "
-                "instead. Returns a task UPID; poll it with pve_task_status."
+                "instead. Returns a task UPID; poll it with pve_task_status. Disabled "
+                "unless the server has PROXMOX_MCP_UPLOAD_DIR configured; file_path must "
+                "resolve inside that directory."
             ),
             inputSchema={
                 "type": "object",
                 "properties": {
                     "node": {"type": "string", "description": "Node name"},
                     "storage": {"type": "string", "description": "Target storage (must have the target content type enabled)"},
-                    "file_path": {"type": "string", "description": "Path to the file on the MCP host's filesystem"},
+                    "file_path": {
+                        "type": "string",
+                        "description": "Path to the file, resolved relative to and confined within PROXMOX_MCP_UPLOAD_DIR",
+                    },
                     "content": {
                         "type": "string",
                         "description": "Content type of the uploaded file",

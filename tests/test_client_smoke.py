@@ -106,11 +106,14 @@ def _build_args(method) -> dict:
 
 
 @pytest.mark.parametrize("method_name", [name for name, _ in _client_methods()])
-def test_client_method_does_not_raise(mock_client, method_name, tmp_path):
+def test_client_method_does_not_raise(mock_client, method_name, tmp_path, monkeypatch):
     method = getattr(ProxmoxClient, method_name)
     kwargs = _build_args(method)
 
     if method_name == "upload_to_storage":
+        # file_path is confined to PROXMOX_MCP_UPLOAD_DIR (see
+        # test_upload_path_confinement.py for the security-relevant cases).
+        monkeypatch.setenv("PROXMOX_MCP_UPLOAD_DIR", str(tmp_path))
         f = tmp_path / "test.qcow2"
         f.write_bytes(b"fake-qcow2-contents")
         kwargs["file_path"] = str(f)

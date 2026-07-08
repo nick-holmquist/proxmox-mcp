@@ -111,7 +111,9 @@ def all_tool_cases():
 @pytest.mark.parametrize(
     "module,tool", all_tool_cases(), ids=lambda x: x.name if hasattr(x, "name") else x.__name__
 )
-def test_handle_tool_does_not_raise(mock_client, module, tool, tmp_path):
+def test_handle_tool_does_not_raise(mock_client, module, tool, tmp_path, monkeypatch):
+    if tool.name == "pve_storage_upload":
+        monkeypatch.setenv("PROXMOX_MCP_UPLOAD_DIR", str(tmp_path))
     arguments = build_arguments(tool, tmp_path)
     module.handle_tool(tool.name, arguments)  # smoke test: must not raise
 
