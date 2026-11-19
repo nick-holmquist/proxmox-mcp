@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import shlex
 from typing import Any
 
 from proxmoxer import ProxmoxAPI
@@ -512,8 +513,11 @@ class ProxmoxClient:
 
     # Guest agent operations
     def agent_exec(self, node: str, vmid: int, command: str) -> dict[str, Any]:
-        """Execute a command via QEMU guest agent."""
-        return self.api.nodes(node).qemu(vmid).agent.exec.post(command=command)
+        """Execute a command with shell-style quoting via QEMU guest agent."""
+        arguments = shlex.split(command)
+        if not arguments or not arguments[0]:
+            raise ValueError("A guest command must start with an executable")
+        return self.api.nodes(node).qemu(vmid).agent.exec.post(command=arguments)
 
     def agent_exec_status(self, node: str, vmid: int, pid: int) -> dict[str, Any]:
         """Get status of a guest agent command execution."""
